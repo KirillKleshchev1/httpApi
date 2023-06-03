@@ -1,5 +1,6 @@
 import requests
 import argparse
+import datetime
 
 
 def get_coordinates(api_key, city):
@@ -101,15 +102,25 @@ else:
     exit()
 
 
-date_input = input("Пожалуйста, введите дату (в формате ГГГГ-ММ-ДД): ")
+date_input = input("Пожалуйста, введите начальную дату (в формате ГГГГ-ММ-ДД): ")
+date_end = input("Пожалуйста, введите конечную дату (в формате ГГГГ-ММ-ДД): ")
 
-found_forecast = None
-for forecast in weather_data['forecasts']:
-    if forecast["date"] == date_input:
-        found_forecast = forecast
-        break
 
-if found_forecast:
-    print_weather_forecast({'forecasts': [found_forecast]})
-else:
-    print("Прогноз погоды для указанной даты не найден.")
+date_input = datetime.datetime.strptime(date_input, "%Y-%m-%d")
+date_end = datetime.datetime.strptime(date_end, "%Y-%m-%d")
+
+while date_input <= date_end:
+    found_forecast = None
+    for forecast in weather_data['forecasts']:
+        forecast_date = datetime.datetime.strptime(forecast['date'], "%Y-%m-%d").date()
+        if forecast_date == date_input.date():
+            found_forecast = forecast
+
+            break
+
+    if found_forecast:
+        print_weather_forecast({'forecasts': [found_forecast]})
+    else:
+        print(f"Прогноз погоды для {date_input.date()} не найден.")
+
+    date_input += datetime.timedelta(days=1)
