@@ -71,8 +71,10 @@ def print_weather_forecast(weather_data):
 
 
 parser = argparse.ArgumentParser(description="Прогноз погоды в указанном городе")
-parser.add_argument("--opencage-api-key", type=str, help="API ключ OpenCage Geocoder")
-parser.add_argument("--yandex-api-key", type=str, help="API ключ Яндекс.Погода")
+parser.add_argument("--opencage-api-key", type=str, help="API ключ OpenCage Geocoder. "
+                    "Для получения необходимо зайти на https://opencagedata.com и авторизоваться, перейти в раздел Geocoding APi и сгенерировать ключ")
+parser.add_argument("--yandex-api-key", type=str, help="API ключ Яндекс.Погода. Для получения необходимо зайти на https://developer.tech.yandex.ru/services."
+                    "Нажать подключить API и выбрать API Яндекс-Погоды, заполнить форму. Сменить тариф на тариф Погода на вашем сайте")
 args = parser.parse_args()
 
 city_name = input("Введите название города: ")
@@ -111,12 +113,15 @@ date_end = datetime.datetime.strptime(date_end, "%Y-%m-%d")
 
 while date_input <= date_end:
     found_forecast = None
-    for forecast in weather_data['forecasts']:
-        forecast_date = datetime.datetime.strptime(forecast['date'], "%Y-%m-%d").date()
-        if forecast_date == date_input.date():
-            found_forecast = forecast
-
-            break
+    try:
+        for forecast in weather_data['forecasts']:
+            forecast_date = datetime.datetime.strptime(forecast['date'], "%Y-%m-%d").date()
+            if forecast_date == date_input.date():
+                found_forecast = forecast
+                break
+    except KeyError:
+        print('Неверно указан yandex-api-key')
+        break
 
     if found_forecast:
         print_weather_forecast({'forecasts': [found_forecast]})
